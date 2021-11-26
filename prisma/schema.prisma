@@ -1,0 +1,67 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["mongoDb"]
+}
+
+enum Role {
+  CLIENT
+  PROVIDER
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  email         String    @unique
+  password      String
+  password_hash String
+  role          Role      @default(PROVIDER)
+  avatar        String
+  Client        Client?
+  Provider      Provider?
+}
+
+model Client {
+  id           String         @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  firstName    String
+  lastName     String
+  phone        String
+  user         User           @relation(fields: [userId], references: [id])
+  userId       String         @unique @db.ObjectId
+  Appointments Appointments[]
+}
+
+model Provider {
+  id           String         @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  name         String
+  address      String
+  contact      String
+  user         User           @relation(fields: [userId], references: [id])
+  userId       String         @unique @db.ObjectId
+  Services     Services[]
+  Appointments Appointments[]
+}
+
+model Services {
+  id       String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  name     String
+  provider Provider @relation(fields: [hallId], references: [id])
+  imgCode  String
+  hallId   String   @db.ObjectId
+}
+
+model Appointments {
+  id            String   @id @default(dbgenerated()) @map("_id") @db.ObjectId
+  date          DateTime
+  canceledAt    DateTime
+  password      String
+  password_hash String
+  client        Client   @relation(fields: [clientId], references: [id])
+  clientId      String   @db.ObjectId
+  provider      Provider @relation(fields: [providerId], references: [id])
+  providerId    String   @db.ObjectId
+}
