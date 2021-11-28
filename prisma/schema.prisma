@@ -19,8 +19,8 @@ model User {
   email         String    @unique
   password      String
   password_hash String
-  role          Role      @default(PROVIDER)
   avatar        String
+  role          Role      @default(PROVIDER)
   Client        Client?
   Provider      Provider?
 }
