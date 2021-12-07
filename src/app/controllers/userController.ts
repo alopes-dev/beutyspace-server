@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import * as Yup from "yup";
+import Users from "@services/UserServices";
 
 type User = {
   email: string;
@@ -13,47 +14,19 @@ const prisma = new PrismaClient();
 
 class UserController {
   async index(req: Request, res: Response): Promise<any> {
-    // const prisma = new PrismaClient();
-    try {
-      const allUsers = await prisma.user.findMany();
-      return res.json(allUsers);
-    } catch (error) {
-      throw error;
-    } finally {
-      await prisma.$disconnect();
-    }
+    const users = await Users.getUsers();
+
+    return res.json(users);
   }
 
   async store(req: Request, res: Response) {
-    // const prisma = new PrismaClient();
-    const schema = Yup.object().shape({
-      email: Yup.string().email().required(),
-      password: Yup.string().required().min(6),
-      role: Yup.string().required(),
-    });
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: "Validation fails" });
-    }
-
-    const userExists = await prisma.user.findFirst({
-      where: { email: req.body.email },
-    });
-
-    if (userExists) {
-      return res.status(400).json({ error: "User already exists." });
-    }
-
+   
     try {
-      const { id, avatar, email, role } = await prisma.user.create({
-        data: req.body,
-      });
+      const { password, email, role } = req.body;
 
-      return res.json({
-        id,
-        avatar,
-        email,
-        role,
-      });
+      const user = await Users.createUser({ password, email, role } )
+
+      return res.json(user);
     } catch (error) {
       throw error;
     } finally {
@@ -62,48 +35,12 @@ class UserController {
   }
 
   async update(req: Request, res: Response) {
-    const schema = Yup.object().shape({
-      email: Yup.string().email(),
-      oldPassword: Yup.string().min(6),
-      password: Yup.string()
-        .min(6)
-        .when("oldPassword", (oldPassword, field) =>
-          oldPassword ? field.required() : field
-        ),
-      confirmPassword: Yup.string().when("password", (password, field) =>
-        password ? field.required().oneOf([Yup.ref("password")]) : field
-      ),
-    });
+    const { id } = req.params;
+    const { email, role } = req.body;
 
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: "Validation fails" });
-    }
+    const user = await Users.putUser({ id, email, role });
 
-    const { email, oldPassword } = req.body;
-
-    const user = await prisma.user.findFirst({
-      where: { id: req.id },
-    });
-
-    if (email !== user?.email) {
-      const userExists = await prisma.user.findUnique({ where: { email } });
-
-      if (userExists) {
-        return res.status(400).json({ error: "User already exists." });
-      }
-    }
-
-    // if (oldPassword && !(await user.checkPassword(oldPassword))) {
-    //   return res.status(401).json({ error: "Password does not match" });
-    // }
-
-    const { id, role } = await prisma.user.update(req.body);
-
-    return res.json({
-      id,
-      email,
-      role,
-    });
+    return res.json(user);
   }
 }
 
