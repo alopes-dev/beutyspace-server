@@ -21,10 +21,8 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@schemas/*": ["src/schemas/*"],
-      "@models/*": ["./src/models/*"],
-      "@kerotypes/*": ["src/kero-types/*"],
-      "@controllers/*": ["./src/controllers/*"],
+      "@services/*": ["src/app/services/*"],
+      "@controllers/*": ["./src/app/controllers/*"],
     }
   },
   "include": [
