@@ -1,19 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
-import * as Yup from "yup";
 import Users from "@services/UserServices";
 
-type User = {
-  email: string;
-  password: string;
-  password_hash: string;
-  role: string;
-  avatar?: string;
-};
+
 const prisma = new PrismaClient();
 
 class UserController {
+
+  
   async index(req: Request, res: Response): Promise<any> {
+
     const users = await Users.getUsers();
 
     return res.json(users);
