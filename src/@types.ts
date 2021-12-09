@@ -12,6 +12,6 @@ export type ClientType = {
     firstName: string;
     lastName : string;
     phone       : string;
-    user ?: UserType;
+    user : UserType;
     userId?:string;
 };

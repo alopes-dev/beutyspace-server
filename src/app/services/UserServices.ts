@@ -3,10 +3,8 @@ import { UserType } from "src/@types";
 import * as Yup from "yup";
 const prisma = new PrismaClient();
 
-
-
 class UserServices {
-  async getUsers(){
+  async getUsers() {
     try {
       const allUsers = await prisma.user.findMany();
       return allUsers;
@@ -24,7 +22,7 @@ class UserServices {
         password: Yup.string().required().min(6),
         role: Yup.string().required(),
       });
-      const { email, password, role } = user;
+      const { email, password, role, password_hash, avatar } = user;
 
       if (!(await schema.isValid(user))) {
         throw new Error("Validation fails");
@@ -39,7 +37,7 @@ class UserServices {
       }
 
       return await prisma.user.create({
-        data: { email, password, role, } as any,
+        data: { email, password, role, password_hash, avatar } as any,
       });
     } catch (error) {
       throw error;
@@ -48,10 +46,7 @@ class UserServices {
     }
   }
 
-  async putUser(user: UserType){
-
-   
-  }
+  async putUser(user: UserType) {}
 }
 
 export default new UserServices();
