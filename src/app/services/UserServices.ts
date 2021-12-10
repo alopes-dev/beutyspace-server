@@ -4,6 +4,7 @@ import * as Yup from "yup";
 const prisma = new PrismaClient();
 
 class UserServices {
+  
   async getUsers() {
     try {
       const allUsers = await prisma.user.findMany();
